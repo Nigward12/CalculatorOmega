@@ -6,6 +6,7 @@ class SingletonMeta(type):
     # that uses this class as its metaclass is being "created"
     # the class stores the instances of the operator classes in a dictionary in which each key
     # is an operator class and each corresponding value is the instance of the class
+    # (this dictionary can be accessed from all classes using SingletonMeta as their metaclass)
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
