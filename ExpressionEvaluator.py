@@ -10,17 +10,29 @@ class ExpressionEvaluator(object):
         # it uses a list to hold all the tokens and returns it
         tokens = []
         element = ""
+        previous_char = None
         for char in expression:
             if char.isdigit() or char == ".":  # handling the conjoining of adjacent digits
                 element += char  # or decimal point to one token
             else:
                 if element:
+                    if '-' in element:  # handling the tokenization adjacent negative signing of a number
+                        count = element.count('-')  # (like ------3=3)
+                        if count % 2 == 0:
+                            element = element[count:]
+                        else:
+                            element = element[count - 1:]
                     tokens.append(element)
                     element = ""
-                if char in "+-*/%$&!^@~()":
+                if char == '-' and previous_char is None or previous_char in "+-*/%$&^@~(":
+                    element += "-"  # handling negative signing of a number
+                elif char in "+-*/%$&!^@~()":
                     tokens.append(char)
-        if element:
-            tokens.append(element)
+                else:
+                    raise ValueError(f"Invalid character '{char}' in input expression")
+                previous_char = char
+        if element:  # adding the last number in a case where
+            tokens.append(element)  # the last token in the expression is a number
         return tokens
 
     @staticmethod
