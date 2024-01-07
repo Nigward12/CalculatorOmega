@@ -10,7 +10,7 @@ class AddOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("Addition requires two operands")
+            raise SyntaxError("Addition requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return operand1 + operand2
@@ -25,7 +25,7 @@ class SubOperator(Operator):
     def execute(self, operand1, operand2=None):
         if operand2 is None:
             if operand1 is None:
-                raise ValueError("Unary negation requires one operand")
+                raise SyntaxError("Unary negation requires one operand")
             if not isinstance(operand1, (int, float)):
                 raise TypeError("Operand must be numeric")
             return -operand1
@@ -41,7 +41,7 @@ class MulOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("Multiplication requires two operands")
+            raise SyntaxError("Multiplication requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return operand1 * operand2
@@ -54,7 +54,7 @@ class DivOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("Division requires two operands")
+            raise SyntaxError("Division requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return operand1 / operand2
@@ -67,7 +67,7 @@ class PowerOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("Exponentiation requires two operands")
+            raise SyntaxError("Exponentiation requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return math.pow(operand1, operand2)
@@ -80,7 +80,7 @@ class ModuloOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("modulo operation requires two operands")
+            raise SyntaxError("modulo operation requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return operand1 % operand2
@@ -93,7 +93,7 @@ class AvgOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("Average operation requires two operands")
+            raise SyntaxError("Average operation requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return (operand1 + operand2) / 2
@@ -106,7 +106,7 @@ class MaxOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("Max operation requires two operands")
+            raise SyntaxError("Max operation requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return operand1 if operand1 > operand2 else operand2
@@ -119,7 +119,7 @@ class MinOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand2 is None or operand1 is None:
-            raise ValueError("Min operation requires two operands")
+            raise SyntaxError("Min operation requires two operands")
         if not isinstance(operand1, (int, float)) or not isinstance(operand2, (int, float)):
             raise TypeError("Operands must be numeric")
         return operand1 if operand1 < operand2 else operand2
@@ -132,7 +132,7 @@ class FactorialOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand1 is None:
-            raise ValueError("Factorial operation requires an operator")
+            raise SyntaxError("Factorial operation requires an operator")
         if not isinstance(operand1, (int, float)):
             raise TypeError("Operand must be numeric")
         result = 1
@@ -148,7 +148,7 @@ class TildaOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand1 is None:
-            raise ValueError("TildaOperation requires an operator")
+            raise SyntaxError("TildaOperation requires an operator")
         if not isinstance(operand1, (int, float)):
             raise TypeError("Operand must be numeric")
         return -operand1
