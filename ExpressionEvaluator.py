@@ -14,6 +14,7 @@ class ExpressionEvaluator(object):
         if not expression.strip():  # check for an input empty of relevant context
             raise SyntaxError("expression is empty")
         tokens = []
+        factory = OperatorFactory()
         element = ""
         previous_char = None
         for char in expression:
@@ -26,12 +27,24 @@ class ExpressionEvaluator(object):
                         element = element[count:]
                         if count % 2 != 0:
                             tokens.append('-')  # adding the negative sign as a separate token
+                    if '.' in element:  # validating decimal point placement
+                        # element can only have one decimal point and it cant be in the first or end
+                        # decimal point cannot be placed on its own
+                        if (not any(char.isdigit() for char in element) or element.startswith('.')
+                                or element.endswith('.')):
+                            raise SyntaxError(" a decimal point is placed without context")
+                        count = element.count('.')
+                        if count > 1:  # checking if a number has more than one decimal point within it
+                            raise SyntaxError("a number can only have one decimal point")
+
                     tokens.append(element)
                     element = ""
                 if char == '-' and (previous_char is None or previous_char in "+-*/%$&^@~("):
                     element += "-"  # handling negative signing of a number
-                elif char in "+-*/%$&!^@~()":
+                elif char in "()" or char in factory.operators:
                     tokens.append(char)
+                elif char in " \t":
+                    pass
                 else:
                     raise SyntaxError(f"Invalid character '{char}' in input expression")
                 previous_char = char
@@ -47,6 +60,7 @@ class ExpressionEvaluator(object):
         ExpressionEvaluator._validate_first_token(tokens)
         ExpressionEvaluator._validate_parenthesis(tokens)
         ExpressionEvaluator._validate_operators(tokens, factory)
+        ExpressionEvaluator._validate_last_token(tokens, factory)
 
     @staticmethod
     def _validate_first_token(tokens):
@@ -89,17 +103,19 @@ class ExpressionEvaluator(object):
         #  the first token is checked separately in _validate_first_token() and the last
         #  token is checked aside from the others to not risk going out of bounds
         for i in range(1, len(tokens) - 1):
-            if tokens[i] in "~+-*/%$&!^@":
-                if tokens[i] == '~':
+            if factory.operators.__contains__(tokens[i]):
+                if factory.get_operator(tokens[i]).placement == "left" and not tokens[i + 1] == '-':  # currently only ~
                     try:
                         factory.get_operator('~').execute(tokens[i + 1])
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i + 1}'th-{i + 2}'th characters , "
                                       f"'{tokens[i]}{tokens[i + 1]}' : {se_message} ")
-                elif tokens[i] == '!':
+                elif (factory.get_operator(tokens[i]).placement == "right"
+                      and (not factory.operators.__contains__(tokens[i]) and factory.get_operator(
+                            tokens[i - 1]).placement == "right")):
                     try:
-                        factory.get_operator('!').execute(tokens[i - 1])
+                        factory.get_operator(tokens[i]).execute(tokens[i - 1])
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i}'th-{i + 1}'th characters , "
@@ -120,14 +136,35 @@ class ExpressionEvaluator(object):
                         raise type(e)(f"at {i}'th-{i + 2}'th characters , "
                                       f"'{tokens[i - 1]}{tokens[i]}{tokens[i + 1]}': {se_message}")
 
-        if (tokens[len(tokens) - 1] in "~+-*/%$&^@" or
-                (tokens[len(tokens) - 1] == '!' and not isinstance(tokens[len(tokens) - 2], (int, float)))):
-            raise SyntaxError("the last element in the expression cant be an operator with no context")
-
     @staticmethod
-    def to_postfix(tokens):
-        pass
+    def _validate_last_token(tokens, factory):
+        last_token = tokens[len(tokens) - 1]
+        second_last_token = tokens[len(tokens) - 2]
+        error_found = False
+        if factory.operators.__contains__(last_token):
+            last_operator = factory.get_operator(last_token)
+            if not last_operator.placement == "right":
+                error_found = True
+            elif factory.operators.__contains__(second_last_token):
+                if not second_last_token.placement == "right":
+                    error_found = True
+            elif not isinstance(second_last_token, (int, float)):
+                error_found = True
+        if isinstance(last_token, (int, float)):
+            if (factory.operators.__contains__(second_last_token)
+                    and second_last_token.placement == "right"):
+                error_found = True
+            if second_last_token == ')':
+                error_found = True
+        if error_found:
+            raise SyntaxError("the last element in the expression is placed out of context")
 
-    @staticmethod
-    def evaluate_postfix(postfix_tokens):
-        pass
+
+@staticmethod
+def to_postfix(tokens):
+    pass
+
+
+@staticmethod
+def evaluate_postfix(postfix_tokens):
+    pass

@@ -132,13 +132,30 @@ class FactorialOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand1 is None:
-            raise SyntaxError("Factorial operation requires an operator")
-        if not isinstance(operand1, (int, float)):
-            raise TypeError("Operand must be numeric")
+            raise SyntaxError("Factorial operation requires an operand")
+        if not isinstance(operand1, int) or operand1 < 0:
+            raise TypeError("Operand must be a natural number")
         result = 1
         for i in range(2, operand1 + 1):
             result *= i
         return result
+
+
+class SumDigitsOperator(Operator):
+    # class handles the building and executing of the SumDigits action on an operand
+    def __init__(self):
+        super().__init__('#', "right", 6)
+
+    def execute(self, operand1, operand2=None):
+        if operand1 is None:
+            raise SyntaxError("sum digits requires an operand")
+        if not isinstance(operand1, (int, float)):
+            raise TypeError("Operand must be numeric")
+        if isinstance(operand1, float):
+            num_str = str(operand1)
+            num_str_no_decimal = num_str.replace('.', '')
+            operand1 = int(num_str_no_decimal)
+        return sum(int(digit) for digit in str(operand1))
 
 
 class TildaOperator(Operator):
@@ -148,7 +165,7 @@ class TildaOperator(Operator):
 
     def execute(self, operand1, operand2=None):
         if operand1 is None:
-            raise SyntaxError("TildaOperation requires an operator")
+            raise SyntaxError("TildaOperation requires an operand")
         if not isinstance(operand1, (int, float)):
             raise TypeError("Operand must be numeric")
         return -operand1
