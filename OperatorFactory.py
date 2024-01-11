@@ -1,5 +1,6 @@
-from OperatorSubClasses import (AddOperator, SubOperator, MulOperator, DivOperator, PowerOperator, ModuloOperator
-, AvgOperator, MaxOperator, MinOperator, FactorialOperator, TildaOperator,SumDigitsOperator)
+from OperatorSubClasses import (AddOperator, SubOperator, MulOperator, DivOperator, PowerOperator, ModuloOperator,
+                                AvgOperator, MaxOperator, MinOperator, FactorialOperator, TildaOperator,
+                                SumDigitsOperator)
 from SingletonMeta import SingletonMeta
 
 

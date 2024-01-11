@@ -1,5 +1,5 @@
+from ExpressionEvaluator import ExpressionEvaluator
 
 if __name__ == '__main__':
-    pass
-
-
+    tokens = ["4", "+", "3", "*", "(", "6", "-", "4", "!", ")"]
+    ExpressionEvaluator.to_postfix(tokens)

@@ -1,9 +1,23 @@
-class Operand(object):
-    # this class saves the value of an operand
-    # in an object , this adds for the Clarity and Readability
-    # of the code and provides freedom for adding functionality to operands
-    def __init__(self, value):
-        self.value = value
 
-    def __str__(self):
-        return str(self.value)
+class Operand(object):
+
+    @staticmethod
+    def is_number(token):
+        try:
+            float(token)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def convert_to_number(value):
+        if Operand.is_number(value):
+            return value
+        try:
+            return int(value)
+        except ValueError:
+            try:
+                return float(value)
+            except ValueError:
+                raise ValueError(f"The string '{value}' is not a valid number.")
+

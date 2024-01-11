@@ -1,4 +1,4 @@
-import SingletonMeta
+from SingletonMeta import SingletonMeta
 
 
 class Operator(object, metaclass=SingletonMeta):
@@ -17,3 +17,4 @@ class Operator(object, metaclass=SingletonMeta):
 
     def __str__(self):
         return self.symbol
+

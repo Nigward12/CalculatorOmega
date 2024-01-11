@@ -1,3 +1,4 @@
+from Operand import Operand
 from OperatorFactory import OperatorFactory
 
 
@@ -24,9 +25,10 @@ class ExpressionEvaluator(object):
                 if element:
                     if '-' in element:  # handling the tokenization adjacent negative signing of a number
                         count = element.count('-')  # (like ------3=3)
-                        element = element[count:]
                         if count % 2 != 0:
-                            tokens.append('-')  # adding the negative sign as a separate token
+                            element = "-" + element[count:]
+                        else:
+                            element = element[count:]
                     if '.' in element:  # validating decimal point placement
                         # element can only have one decimal point and it cant be in the first or end
                         # decimal point cannot be placed on its own
@@ -54,13 +56,15 @@ class ExpressionEvaluator(object):
 
     @staticmethod
     def validate(tokens):
+        #  public method of ExpressionEvaluator
+        #  method is used to validate the placement of tokens of a given expression
+        #  for correct calculation
         if not tokens:
             raise SyntaxError("The expression is empty.")
-        factory = OperatorFactory()
         ExpressionEvaluator._validate_first_token(tokens)
         ExpressionEvaluator._validate_parenthesis(tokens)
-        ExpressionEvaluator._validate_operators(tokens, factory)
-        ExpressionEvaluator._validate_last_token(tokens, factory)
+        ExpressionEvaluator._validate_operators(tokens)
+        ExpressionEvaluator._validate_last_token(tokens)
 
     @staticmethod
     def _validate_first_token(tokens):
@@ -68,7 +72,7 @@ class ExpressionEvaluator(object):
         #  method to check the validity of the first token in the expression
         #  first token cant be an operator unless it's a negative sign or tilda with a number after
         if (tokens[0] in "+*/%$&!^@)" or
-                (tokens[0] in '-~' and not isinstance(tokens[1], (int, float)))):
+                (tokens[0] == '~' and not Operand.is_number(tokens[1]))):
             raise SyntaxError(f"'{tokens[0]}' can't be the first character in the expression")
 
     @staticmethod
@@ -93,18 +97,19 @@ class ExpressionEvaluator(object):
             raise SyntaxError("Mismatched parentheses in expression.")
 
     @staticmethod
-    def _validate_operators(tokens, factory):
+    def _validate_operators(tokens):
         #  private method of ExpressionEvaluator , used by validate()
-        #  method to check the validity of all the operators in the expression
+        #  method is used to check the validity of all the operators in the expression
         #  the method iterates over all the iterators and checks them for relevant errors
         #  it uses the execute method of the Operator class to check for relevant errors
         #  if such errors accrue the method throws them to the output along with relevant
         #  reference for the location and syntax in the expression that caused the error
         #  the first token is checked separately in _validate_first_token() and the last
         #  token is checked aside from the others to not risk going out of bounds
+        factory = OperatorFactory()
         for i in range(1, len(tokens) - 1):
             if factory.operators.__contains__(tokens[i]):
-                if factory.get_operator(tokens[i]).placement == "left" and not tokens[i + 1] == '-':  # currently only ~
+                if factory.get_operator(tokens[i]).placement == "left":  # currently only ~
                     try:
                         factory.get_operator('~').execute(tokens[i + 1])
                     except (SyntaxError, TypeError) as e:
@@ -120,14 +125,6 @@ class ExpressionEvaluator(object):
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i}'th-{i + 1}'th characters , "
                                       f"'{tokens[i - 1]}{tokens[i]}': {se_message}")
-                elif tokens[i] == '-' and (
-                        not isinstance(tokens[i - 1], (int, float)) and isinstance(tokens[i + 1], (int, float))):
-                    try:
-                        factory.get_operator('-').execute(tokens[i + 1])
-                    except (SyntaxError, TypeError) as e:
-                        se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i}'th-{i + 1}'th characters , "
-                                      f"'{tokens[i - 1]}{tokens[i]}': {se_message}")
                 else:
                     try:
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], tokens[i + 1])
@@ -137,34 +134,89 @@ class ExpressionEvaluator(object):
                                       f"'{tokens[i - 1]}{tokens[i]}{tokens[i + 1]}': {se_message}")
 
     @staticmethod
-    def _validate_last_token(tokens, factory):
+    def _validate_last_token(tokens):
+        #  private method of ExpressionEvaluator , used by validate()
+        #  method is used to check the validity of the last token in the expression
+        #  last token can only be operator with its placement property being "right" (of  a number
+        #  or another right sided operator)
+        #  , a closing parenthesis and a number that is placed after a middle or left sided operator
+        factory = OperatorFactory()
         last_token = tokens[len(tokens) - 1]
         second_last_token = tokens[len(tokens) - 2]
+        last_is_operator = factory.operators.__contains__(last_token)
+        second_last_is_operator = factory.operators.__contains__(second_last_token)
         error_found = False
-        if factory.operators.__contains__(last_token):
+        if last_is_operator:
             last_operator = factory.get_operator(last_token)
             if not last_operator.placement == "right":
                 error_found = True
-            elif factory.operators.__contains__(second_last_token):
-                if not second_last_token.placement == "right":
+            elif second_last_is_operator:
+                second_last_operator = factory.get_operator(second_last_token)
+                if not second_last_operator.placement == "right":
                     error_found = True
-            elif not isinstance(second_last_token, (int, float)):
+            elif not Operand.is_number(second_last_token):
                 error_found = True
-        if isinstance(last_token, (int, float)):
-            if (factory.operators.__contains__(second_last_token)
-                    and second_last_token.placement == "right"):
-                error_found = True
+        if Operand.is_number(last_token):
+            if second_last_is_operator:
+                second_last_operator = factory.get_operator(second_last_token)
+                if second_last_operator.placement == "right":
+                    error_found = True
             if second_last_token == ')':
                 error_found = True
         if error_found:
             raise SyntaxError("the last element in the expression is placed out of context")
 
+    @staticmethod
+    def to_postfix(tokens):
+        factory = OperatorFactory()
+        result = []
+        operators = []
 
-@staticmethod
-def to_postfix(tokens):
-    pass
+        for i in range(len(tokens)):
+            c = tokens[i]
 
+            # If the scanned character is an operand, add it to the output string.
+            if Operand.is_number(c):
+                result.append(c)
+            # If the scanned character is an ‘(‘, push it to the stack.
+            elif c == '(':
+                operators.append(c)
+            # If the scanned character is an ‘)’, pop and add to the output string from the stack
+            # until an ( is encountered.
+            elif c == ')':
+                while operators and operators[-1] != '(':
+                    result.append(operators.pop())
+                operators.pop()  # Pop '('
+            # If an operator is scanned , append all operators with lower or equal priority to the postfix result
+            # push the operator to the stack
+            else:
+                while operators and (
+                        ExpressionEvaluator._precedence(tokens[i]) < ExpressionEvaluator._precedence(operators[-1]) or
+                        (ExpressionEvaluator._precedence(tokens[i]) == ExpressionEvaluator._precedence(operators[-1])
+                         and ExpressionEvaluator._associativity(tokens[i]) == 'L')):
+                    result.append(operators.pop())
+                operators.append(c)
 
-@staticmethod
-def evaluate_postfix(postfix_tokens):
-    pass
+        # Pop all the remaining elements from the stack
+        while operators:
+            result.append(operators.pop())
+        print(''.join(result))
+
+    @staticmethod
+    def _precedence(op):
+        factory = OperatorFactory()
+        if op in factory.operators:
+            return factory.get_operator(op).priority
+        else:
+            return -1
+
+    @staticmethod
+    def _associativity(op):
+        factory = OperatorFactory()
+        if op in factory.operators and factory.get_operator(op).placement == "right":
+            return 'R'
+        return 'L'
+
+    @staticmethod
+    def evaluate_postfix(postfix_tokens):
+        pass
