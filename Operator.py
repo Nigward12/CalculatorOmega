@@ -12,9 +12,25 @@ class Operator(object, metaclass=SingletonMeta):
         self.placement = placement
         self.priority = priority
 
-    def execute(self, operand1, operand2=None):
+    def execute(self, operand1, for_validation, operand2=None):
         raise NotImplementedError("This method should be overridden in subclasses.")
 
     def __str__(self):
         return self.symbol
 
+    #  the methods below are used to return a comparison string
+    #  to check if a character is an operator of some kind
+    #  used in operatorSubClasses to avoid circular imports
+    #  from operator factory (it also contains an operator list
+    #  but imports operatorSubClasses)
+    @staticmethod
+    def operators_str():
+        return "+-*/!@#$%&^~"
+
+    @staticmethod
+    def right_operators_str():
+        return "!#"
+
+    @staticmethod
+    def left_operators_str():
+        return "~"

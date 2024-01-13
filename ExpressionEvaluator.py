@@ -18,7 +18,9 @@ class ExpressionEvaluator(object):
         factory = OperatorFactory()
         element = ""
         previous_char = None
-        for char in expression:
+        i = 0
+        while i < len(expression):
+            char = expression[i]
             if char.isdigit() or char == ".":  # handling the conjoining of adjacent digits
                 element += char  # or decimal point to one token
             else:
@@ -42,16 +44,23 @@ class ExpressionEvaluator(object):
                     tokens.append(element)
                     element = ""
                 if char == '-' and (previous_char is None or previous_char in "+-*/%$&^@~("):
-                    element += "-"  # handling negative signing of a number
+                    #  add all the consecutive unary negation signs into one token
+                    while i < len(expression) and expression[i] == '-':
+                        element += "-"
+                        i += 1
+                    previous_char = expression[i-1]
+                    continue
                 elif char in "()" or char in factory.operators:
                     tokens.append(char)
                 elif char in " \t":
                     pass
                 else:
                     raise SyntaxError(f"Invalid character '{char}' in input expression")
-                previous_char = char
+            previous_char = char
+            i += 1
         if element:  # adding the last number in a case where
             tokens.append(element)  # the last token in the expression is a number
+        print(''.join(tokens))
         return tokens
 
     @staticmethod
@@ -111,23 +120,23 @@ class ExpressionEvaluator(object):
             if factory.operators.__contains__(tokens[i]):
                 if factory.get_operator(tokens[i]).placement == "left":  # currently only ~
                     try:
-                        factory.get_operator('~').execute(tokens[i + 1])
+                        factory.get_operator('~').execute(tokens[i + 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i + 1}'th-{i + 2}'th characters , "
                                       f"'{tokens[i]}{tokens[i + 1]}' : {se_message} ")
                 elif (factory.get_operator(tokens[i]).placement == "right"
-                      and (not factory.operators.__contains__(tokens[i]) and factory.get_operator(
+                      and not (factory.operators.__contains__(tokens[i - 1]) and factory.get_operator(
                             tokens[i - 1]).placement == "right")):
                     try:
-                        factory.get_operator(tokens[i]).execute(tokens[i - 1])
+                        factory.get_operator(tokens[i]).execute(tokens[i - 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i}'th-{i + 1}'th characters , "
                                       f"'{tokens[i - 1]}{tokens[i]}': {se_message}")
                 else:
                     try:
-                        factory.get_operator(tokens[i]).execute(tokens[i - 1], tokens[i + 1])
+                        factory.get_operator(tokens[i]).execute(tokens[i - 1], True, tokens[i + 1])
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i}'th-{i + 2}'th characters , "
@@ -168,7 +177,6 @@ class ExpressionEvaluator(object):
 
     @staticmethod
     def to_postfix(tokens):
-        factory = OperatorFactory()
         result = []
         operators = []
 
