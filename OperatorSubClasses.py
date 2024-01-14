@@ -4,6 +4,15 @@ import math
 from Operand import Operand
 
 
+#  this file contains all the operators that are subclasses of operator upper class
+#  each operator has his own logic for validation and output
+#  each operator realized the abstract method execute from operator
+#  this method has two options for execution , one is used only for input validation
+#  and checks if the operands received are logically correct for the operators context
+#  for this execution option the for_validation input variable of the method must be true
+#  the second option of execution for the execute method is for the actual calculation
+#  of the action the class represents on the operands that were sent , in this option
+#  for_validation must be false and the operands must be a numeric value
 class AddOperator(Operator):
     # Handles the addition action between two operands
     def __init__(self):
@@ -13,6 +22,8 @@ class AddOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Addition requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -32,6 +43,8 @@ class SubOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Subtraction requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -51,6 +64,8 @@ class MulOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Multiplication requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -70,6 +85,8 @@ class DivOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Division requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -89,6 +106,8 @@ class PowerOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Exponentiation requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -108,6 +127,8 @@ class ModuloOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Modulo operation requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -127,6 +148,8 @@ class AvgOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Average operation requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -146,6 +169,8 @@ class MaxOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Max operation requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -165,6 +190,8 @@ class MinOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Min operation requires two operands")
         if for_validation:
+            #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
+            #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
                     or not (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
@@ -184,6 +211,8 @@ class FactorialOperator(Operator):
         if operand1 is None:
             raise SyntaxError("Factorial operation requires an operand")
         if for_validation:
+            #  in the expression , a 'right' operator can be placed after a closing parenthesis
+            #  , a number or another 'right' operator
             if not (Operand.is_number(operand1) or operand1 == ')'
                     or operand1 in Operator.right_operators_str()):
                 raise SyntaxError("! placed out of context")
@@ -191,6 +220,7 @@ class FactorialOperator(Operator):
         if not Operand.is_number(operand1) or operand1 < 0:
             raise TypeError("Operand must be a natural number")
         result = 1
+        #  factorial operation on the number
         for i in range(2, operand1 + 1):
             result *= i
         return result
@@ -205,6 +235,8 @@ class SumDigitsOperator(Operator):
         if operand1 is None:
             raise SyntaxError("Sum digits requires an operand")
         if for_validation:
+            #  in the expression , a 'right' operator can be placed after a closing parenthesis
+            #  , a number or another 'right' operator
             if not (Operand.is_number(operand1) or operand1 == ')'
                     or operand1 in Operator.right_operators_str()):
                 raise SyntaxError("# placed out of context")
@@ -212,7 +244,7 @@ class SumDigitsOperator(Operator):
         if not Operand.is_number(operand1):
             raise TypeError("Operand must be numeric")
         result = 0
-        operand1 = str(operand1).replace('.', '')
+        operand1 = str(operand1).replace('.', '')  # removing decimal point
         operand1 = Operand.convert_to_number(operand1)
         while operand1 > 0:  # sum the digits
             result += operand1 % 10
@@ -227,12 +259,13 @@ class TildaOperator(Operator):
 
     def execute(self, operand1, for_validation, operand2=None):
         if operand1 is None:
-            raise SyntaxError("TildaOperation requires an operand")
+            raise SyntaxError("Tilda Operation requires an operand")
         if for_validation:
+            #  in the expression , a 'left' operator can be placed before an opening parenthesis
+            #  or a number
             if not (Operand.is_number(operand1) or operand1 == '('):
                 raise SyntaxError("~ placed out of context")
             return
         if not Operand.is_number(operand1):
             raise TypeError("Operand must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
         return -operand1

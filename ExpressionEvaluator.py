@@ -121,16 +121,16 @@ class ExpressionEvaluator(object):
         factory = OperatorFactory()
         for i in range(1, len(tokens) - 1):
             if factory.operators.__contains__(tokens[i]):
-                if factory.get_operator(tokens[i]).placement == "left":  # currently only ~
+                if factory.get_operator(tokens[i]).placement == "left":
+                    #  left operator works on the next token in the expression
                     try:
                         factory.get_operator('~').execute(tokens[i + 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i + 1}'th-{i + 2}'th tokens , "
                                       f"'{tokens[i]}{tokens[i + 1]}' : {se_message} ")
-                elif (factory.get_operator(tokens[i]).placement == "right"
-                      and not (factory.operators.__contains__(tokens[i - 1]) and factory.get_operator(
-                            tokens[i - 1]).placement == "right")):
+                elif factory.get_operator(tokens[i]).placement == "right":
+                    #  right operator works on the previous token in the expression
                     try:
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True)
                     except (SyntaxError, TypeError) as e:
@@ -138,6 +138,7 @@ class ExpressionEvaluator(object):
                         raise type(e)(f"at {i}'th-{i + 1}'th tokens , "
                                       f"'{tokens[i - 1]}{tokens[i]}': {se_message}")
                 else:
+                    #  middle operator works on the previous and next tokens
                     try:
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True, tokens[i + 1])
                     except (SyntaxError, TypeError) as e:
@@ -180,74 +181,80 @@ class ExpressionEvaluator(object):
 
     @staticmethod
     def to_postfix(tokens):
-        postfix_tokens = []
+        postfix_tokens = []  # output list that will contain the tokens list after conversion to postfix
         operators = []
+        factory = OperatorFactory()
 
         for i in range(len(tokens)):
             c = tokens[i]
 
-            # If the scanned character is an operand, add it to the output string.
+            # If the scanned token is an operand, add it to the output list.
             if Operand.is_number(c):
                 postfix_tokens.append(c)
-            # If the scanned character is an ‘(‘, push it to the stack.
+            # If the scanned token is an opening parenthesis, push it to the operator stack.
             elif c == '(':
                 operators.append(c)
-            # If the scanned character is an ‘)’, pop and add to the output string from the stack
-            # until an ( is encountered.
+            # If the scanned token is a closing parenthesis, pop and add to the output list from the operator stack
+            # until an opening parenthesis is encountered.
             elif c == ')':
                 while operators and operators[-1] != '(':
                     postfix_tokens.append(operators.pop())
-                operators.pop()  # Pop '('
-            # If an operator is scanned , append all operators with lower or equal priority to the postfix result
+                operators.pop()  # Pop the opening parenthesis
+            # If the scanned token is an operator
+            # , append all operators with lower or equal priority to the output list
             # push the operator to the stack
+            # * if the operator is a right sided operator and the top operator in the stack is
+            # of equal priority to that of the current operator , no need to pop the stack
+            # as the order of the operations will stay correct
             else:
                 while operators and (
                         ExpressionEvaluator._precedence(tokens[i]) < ExpressionEvaluator._precedence(operators[-1]) or
                         (ExpressionEvaluator._precedence(tokens[i]) == ExpressionEvaluator._precedence(operators[-1])
-                         and ExpressionEvaluator._associativity(tokens[i]) == 'L')):
+                         and factory.get_operator(tokens[i]).placement != 'right')):
                     postfix_tokens.append(operators.pop())
                 operators.append(c)
 
         # Pop all the remaining elements from the stack
         while operators:
             postfix_tokens.append(operators.pop())
-        print(''.join(postfix_tokens))
-        return postfix_tokens
+        return postfix_tokens  # return the converted list
 
     @staticmethod
     def _precedence(op):
+        #  private method of ExpressionEvaluator , used by to_postfix()
+        #  to determine the priority of any given operator while
+        #  converting the expression to postfix notation
         factory = OperatorFactory()
         if op in factory.operators:
             return factory.get_operator(op).priority
         else:
-            return -1
-
-    @staticmethod
-    def _associativity(op):
-        factory = OperatorFactory()
-        if factory.operators.__contains__(op) and factory.get_operator(op).placement == "right":
-            return 'R'
-        return 'L'
+            return -1  # will usually happen for an opening parenthesis
 
     @staticmethod
     def evaluate_postfix(postfix_tokens):
         operand_stack = []
         factory = OperatorFactory()
-        # Iterate over the expression for conversion
+        # Iterate over the postfix tokens list
         for token in postfix_tokens:
 
             # If the scanned character is an operand
-            # (number here) push it to the stack
+            #  push it to the operand stack
             if Operand.is_number(token):
                 operand_stack.append(Operand.convert_to_number(token))
 
             # If the scanned character is an operator,
-            # pop two elements from stack and apply it.
+            # pop one operand from the operand stack for unary operators and execute the operation
+            # pop two operands from the operand stack for binary operators and execute the operation
+            # push the result to the operand stack
+            # additional checks for edge cases where unary negation is overpowered in terms of priority
+            # - the operation with the higher priority will be executed on the non-negative operand
+            # only then the unary negation will be executed on the result
             else:
                 current_operator = factory.get_operator(token)
                 if current_operator.placement != "middle":
                     val = operand_stack.pop()
                     if val < 0 and current_operator.placement == "right":
+                        # left operators never have priority over unary negation
                         operand_stack.append(-current_operator.execute(-val, False))
                     else:
                         operand_stack.append(current_operator.execute(val, False))
