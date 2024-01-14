@@ -13,14 +13,13 @@ class AddOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Addition requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("+ placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return operand1 + operand2
 
 
@@ -33,14 +32,13 @@ class SubOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Subtraction requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("- placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return operand1 - operand2
 
 
@@ -53,14 +51,13 @@ class MulOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Multiplication requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("* placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return operand1 * operand2
 
 
@@ -73,14 +70,13 @@ class DivOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Division requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("/ placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return operand1 / operand2
 
 
@@ -93,14 +89,13 @@ class PowerOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Exponentiation requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("^ placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return math.pow(operand1, operand2)
 
 
@@ -113,14 +108,13 @@ class ModuloOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Modulo operation requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("% placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return operand1 % operand2
 
 
@@ -133,14 +127,13 @@ class AvgOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Average operation requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("@ placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return (operand1 + operand2) / 2
 
 
@@ -153,14 +146,13 @@ class MaxOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Max operation requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("$ placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return max(operand1, operand2)
 
 
@@ -173,14 +165,13 @@ class MinOperator(Operator):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Min operation requires two operands")
         if for_validation:
-            if not ((Operand.is_number(operand1) or operand1 == ')')
-                    or not (Operand.is_number(operand2) or operand2 == '(')):
+            if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
+                    or not (Operand.is_number(
+                        operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("& placed out of context")
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        operand1 = Operand.convert_to_number(operand1)
-        operand2 = Operand.convert_to_number(operand2)
         return min(operand1, operand2)
 
 
@@ -199,7 +190,6 @@ class FactorialOperator(Operator):
             return
         if not Operand.is_number(operand1) or operand1 < 0:
             raise TypeError("Operand must be a natural number")
-        operand1 = Operand.convert_to_number(operand1)
         result = 1
         for i in range(2, operand1 + 1):
             result *= i
@@ -221,8 +211,13 @@ class SumDigitsOperator(Operator):
             return
         if not Operand.is_number(operand1):
             raise TypeError("Operand must be numeric")
+        result = 0
+        operand1 = str(operand1).replace('.', '')
         operand1 = Operand.convert_to_number(operand1)
-        return sum(int(digit) for digit in str(operand1))
+        while operand1 > 0:  # sum the digits
+            result += operand1 % 10
+            operand1 = operand1 // 10
+        return result
 
 
 class TildaOperator(Operator):

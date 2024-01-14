@@ -43,12 +43,15 @@ class ExpressionEvaluator(object):
 
                     tokens.append(element)
                     element = ""
-                if char == '-' and (previous_char is None or previous_char in "+-*/%$&^@~("):
+                if (char == '-' and (previous_char is None
+                                     or (factory.operators.__contains__(previous_char) and
+                                         factory.get_operator(
+                                             previous_char).placement != "right") or previous_char == '(')):
                     #  add all the consecutive unary negation signs into one token
                     while i < len(expression) and expression[i] == '-':
                         element += "-"
                         i += 1
-                    previous_char = expression[i-1]
+                    previous_char = expression[i - 1]
                     continue
                 elif char in "()" or char in factory.operators:
                     tokens.append(char)
@@ -123,7 +126,7 @@ class ExpressionEvaluator(object):
                         factory.get_operator('~').execute(tokens[i + 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i + 1}'th-{i + 2}'th characters , "
+                        raise type(e)(f"at {i + 1}'th-{i + 2}'th tokens , "
                                       f"'{tokens[i]}{tokens[i + 1]}' : {se_message} ")
                 elif (factory.get_operator(tokens[i]).placement == "right"
                       and not (factory.operators.__contains__(tokens[i - 1]) and factory.get_operator(
@@ -132,14 +135,14 @@ class ExpressionEvaluator(object):
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i}'th-{i + 1}'th characters , "
+                        raise type(e)(f"at {i}'th-{i + 1}'th tokens , "
                                       f"'{tokens[i - 1]}{tokens[i]}': {se_message}")
                 else:
                     try:
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True, tokens[i + 1])
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i}'th-{i + 2}'th characters , "
+                        raise type(e)(f"at {i}'th-{i + 2}'th tokens , "
                                       f"'{tokens[i - 1]}{tokens[i]}{tokens[i + 1]}': {se_message}")
 
     @staticmethod
@@ -177,7 +180,7 @@ class ExpressionEvaluator(object):
 
     @staticmethod
     def to_postfix(tokens):
-        result = []
+        postfix_tokens = []
         operators = []
 
         for i in range(len(tokens)):
@@ -185,7 +188,7 @@ class ExpressionEvaluator(object):
 
             # If the scanned character is an operand, add it to the output string.
             if Operand.is_number(c):
-                result.append(c)
+                postfix_tokens.append(c)
             # If the scanned character is an ‘(‘, push it to the stack.
             elif c == '(':
                 operators.append(c)
@@ -193,7 +196,7 @@ class ExpressionEvaluator(object):
             # until an ( is encountered.
             elif c == ')':
                 while operators and operators[-1] != '(':
-                    result.append(operators.pop())
+                    postfix_tokens.append(operators.pop())
                 operators.pop()  # Pop '('
             # If an operator is scanned , append all operators with lower or equal priority to the postfix result
             # push the operator to the stack
@@ -202,13 +205,14 @@ class ExpressionEvaluator(object):
                         ExpressionEvaluator._precedence(tokens[i]) < ExpressionEvaluator._precedence(operators[-1]) or
                         (ExpressionEvaluator._precedence(tokens[i]) == ExpressionEvaluator._precedence(operators[-1])
                          and ExpressionEvaluator._associativity(tokens[i]) == 'L')):
-                    result.append(operators.pop())
+                    postfix_tokens.append(operators.pop())
                 operators.append(c)
 
         # Pop all the remaining elements from the stack
         while operators:
-            result.append(operators.pop())
-        print(''.join(result))
+            postfix_tokens.append(operators.pop())
+        print(''.join(postfix_tokens))
+        return postfix_tokens
 
     @staticmethod
     def _precedence(op):
@@ -221,10 +225,37 @@ class ExpressionEvaluator(object):
     @staticmethod
     def _associativity(op):
         factory = OperatorFactory()
-        if op in factory.operators and factory.get_operator(op).placement == "right":
+        if factory.operators.__contains__(op) and factory.get_operator(op).placement == "right":
             return 'R'
         return 'L'
 
     @staticmethod
     def evaluate_postfix(postfix_tokens):
-        pass
+        operand_stack = []
+        factory = OperatorFactory()
+        # Iterate over the expression for conversion
+        for token in postfix_tokens:
+
+            # If the scanned character is an operand
+            # (number here) push it to the stack
+            if Operand.is_number(token):
+                operand_stack.append(Operand.convert_to_number(token))
+
+            # If the scanned character is an operator,
+            # pop two elements from stack and apply it.
+            else:
+                current_operator = factory.get_operator(token)
+                if current_operator.placement != "middle":
+                    val = operand_stack.pop()
+                    if val < 0 and current_operator.placement == "right":
+                        operand_stack.append(-current_operator.execute(-val, False))
+                    else:
+                        operand_stack.append(current_operator.execute(val, False))
+                else:
+                    val1 = operand_stack.pop()
+                    val2 = operand_stack.pop()
+                    if val2 < 0 and current_operator.priority >= 3:
+                        operand_stack.append(-current_operator.execute(-val2, False, val1))
+                    else:
+                        operand_stack.append(current_operator.execute(val2, False, val1))
+        return operand_stack.pop()

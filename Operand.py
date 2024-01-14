@@ -1,8 +1,10 @@
 
 class Operand(object):
-
+    #  helper class that contains methods to be committed on potential operands for calculations
     @staticmethod
     def is_number(token):
+        #  method checks if token represents a number -
+        #  (actual numeric value or a number represented by a string)
         try:
             float(token)
             return True
@@ -11,8 +13,10 @@ class Operand(object):
 
     @staticmethod
     def convert_to_number(value):
-        if Operand.is_number(value):
-            return value
+        #  method converts value into its numeric value
+        #  if value is already a numeric value it will
+        #  be returned with no changes , if value is a string
+        #  the numeric value it represents will be returned (if a value is properly represented in the string)
         try:
             return int(value)
         except ValueError:
