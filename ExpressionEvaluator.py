@@ -25,23 +25,14 @@ class ExpressionEvaluator(object):
                 element += char  # or decimal point to one token
             else:
                 if element:
-                    if '-' in element:  # handling the tokenization adjacent negative signing of a number
-                        count = element.count('-')  # (like ------3=3)
-                        if count % 2 != 0:
-                            element = "-" + element[count:]
-                        else:
-                            element = element[count:]
-                    if '.' in element:  # validating decimal point placement
-                        # element can only have one decimal point and it cant be in the first or end
-                        # decimal point cannot be placed on its own
-                        if (not any(char.isdigit() for char in element) or element.startswith('.')
-                                or element.endswith('.')):
-                            raise SyntaxError(" a decimal point is placed without context")
-                        count = element.count('.')
-                        if count > 1:  # checking if a number has more than one decimal point within it
-                            raise SyntaxError("a number can only have one decimal point")
-
-                    tokens.append(element)
+                    element = ExpressionEvaluator._before_appending(tokens, element)
+                    if element.strip():
+                        # a case where an element was only made of unary signs like
+                        # 4+-(4) ,_before_appending() method will already append
+                        # the unary negation char to the list and there won't be
+                        # any number left to append , the value for the negation
+                        # will come from the parenthesis in calculation
+                        tokens.append(element)
                     element = ""
                 if (char == '-' and (previous_char is None
                                      or (factory.operators.__contains__(previous_char) and
@@ -51,6 +42,9 @@ class ExpressionEvaluator(object):
                     while i < len(expression) and expression[i] == '-':
                         element += "-"
                         i += 1
+                    if i == len(expression) or factory.operators.__contains__(expression[i]):
+                        # unary signing can only work on a number or parenthesis
+                        raise SyntaxError("unary negative signing has no context")
                     previous_char = expression[i - 1]
                     continue
                 elif char in "()" or char in factory.operators:
@@ -62,9 +56,34 @@ class ExpressionEvaluator(object):
             previous_char = char
             i += 1
         if element:  # adding the last number in a case where
-            tokens.append(element)  # the last token in the expression is a number
-        print(''.join(tokens))
+            element = ExpressionEvaluator._before_appending(tokens, element)
+            if element.strip():
+                tokens.append(element)  # the last token in the expression is a number
         return tokens
+
+    @staticmethod
+    def _before_appending(tokens, element):
+        #  private method of ExpressionEvaluator , used by tokenize() method
+        #  method checks and fixes an operand element before appending it to the tokens list
+
+        if '-' in element:  # handling the tokenization adjacent negative signing of a number
+            count = element.count('-')  # (like ------3=3 , ---3=-3)
+            element = element[count:]
+            if count % 2 != 0:  # unary negation doesn't count if there is an even number of '-'
+                if len(tokens) == 0 or tokens[len(tokens) - 1] == "(":
+                    tokens.append('_')  # unary negation has low priority
+                else:
+                    tokens.append('~')  # unary negation has high priority , tilda used for this case
+        if '.' in element:  # validating decimal point placement
+            # element can only have one decimal point and it cant be in the first or end
+            # decimal point cannot be placed on its own
+            if (not any(char.isdigit() for char in element) or element.startswith('.')
+                    or element.endswith('.')):
+                raise SyntaxError(" a decimal point is placed without context")
+            count = element.count('.')
+            if count > 1:  # checking if a number has more than one decimal point within it
+                raise SyntaxError("a number can only have one decimal point")
+        return element
 
     @staticmethod
     def validate(tokens):
@@ -73,18 +92,23 @@ class ExpressionEvaluator(object):
         #  for correct calculation
         if not tokens:
             raise SyntaxError("The expression is empty.")
-        ExpressionEvaluator._validate_first_token(tokens)
-        ExpressionEvaluator._validate_parenthesis(tokens)
-        ExpressionEvaluator._validate_operators(tokens)
-        ExpressionEvaluator._validate_last_token(tokens)
+        try:
+            ExpressionEvaluator._validate_first_token(tokens)
+            ExpressionEvaluator._validate_parenthesis(tokens)
+            ExpressionEvaluator._validate_operators(tokens)
+            ExpressionEvaluator._validate_last_token(tokens)
+        except (SyntaxError, TypeError) as e:
+            raise type(e)(f"{e}")
 
     @staticmethod
     def _validate_first_token(tokens):
         #  private method of ExpressionEvaluator , used by validate()
         #  method to check the validity of the first token in the expression
         #  first token cant be an operator unless it's a negative sign or tilda with a number after
+        factory = OperatorFactory()
         if (tokens[0] in "+*/%$&!^@)" or
-                (tokens[0] == '~' and not Operand.is_number(tokens[1]))):
+                ((factory.operators.__contains__(tokens[0]) and factory.get_operator(tokens[0]).placement == "left")
+                 and not (Operand.is_number(tokens[1]) or tokens[1] == '('))):
             raise SyntaxError(f"'{tokens[0]}' can't be the first character in the expression")
 
     @staticmethod
@@ -96,6 +120,10 @@ class ExpressionEvaluator(object):
         open_parenthesis_cnt = 0
         for i in range(0, len(tokens)):
             if tokens[i] == '(':
+                # open parenthesis in the end of the expression
+                # a separate if is needed to avoid going out of bounds in the tokens list
+                if i == len(tokens) - 1:
+                    raise SyntaxError("open parenthesis in the end of the expression")
                 if (tokens[i + 1]) == ')':
                     raise SyntaxError(f"at {i + 1}'th-{i + 2}'th characters, '()', empty parenthesis are not allowed")
                 open_parenthesis_cnt += 1
@@ -167,7 +195,7 @@ class ExpressionEvaluator(object):
                 second_last_operator = factory.get_operator(second_last_token)
                 if not second_last_operator.placement == "right":
                     error_found = True
-            elif not Operand.is_number(second_last_token):
+            elif not (Operand.is_number(second_last_token) or second_last_token == ')'):
                 error_found = True
         if Operand.is_number(last_token):
             if second_last_is_operator:
@@ -208,15 +236,14 @@ class ExpressionEvaluator(object):
             # as the order of the operations will stay correct
             else:
                 while operators and (
-                        ExpressionEvaluator._precedence(tokens[i]) < ExpressionEvaluator._precedence(operators[-1]) or
-                        (ExpressionEvaluator._precedence(tokens[i]) == ExpressionEvaluator._precedence(operators[-1])
-                         and factory.get_operator(tokens[i]).placement != 'right')):
+                        ExpressionEvaluator._precedence(tokens[i]) <= ExpressionEvaluator._precedence(operators[-1])):
                     postfix_tokens.append(operators.pop())
                 operators.append(c)
 
         # Pop all the remaining elements from the stack
         while operators:
             postfix_tokens.append(operators.pop())
+        print(''.join(postfix_tokens))
         return postfix_tokens  # return the converted list
 
     @staticmethod
@@ -253,16 +280,9 @@ class ExpressionEvaluator(object):
                 current_operator = factory.get_operator(token)
                 if current_operator.placement != "middle":
                     val = operand_stack.pop()
-                    if val < 0 and current_operator.placement == "right":
-                        # left operators never have priority over unary negation
-                        operand_stack.append(-current_operator.execute(-val, False))
-                    else:
-                        operand_stack.append(current_operator.execute(val, False))
+                    operand_stack.append(current_operator.execute(val, False))
                 else:
                     val1 = operand_stack.pop()
                     val2 = operand_stack.pop()
-                    if val2 < 0 and current_operator.priority >= 3:
-                        operand_stack.append(-current_operator.execute(-val2, False, val1))
-                    else:
-                        operand_stack.append(current_operator.execute(val2, False, val1))
+                    operand_stack.append(current_operator.execute(val2, False, val1))
         return operand_stack.pop()

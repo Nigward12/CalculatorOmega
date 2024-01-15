@@ -1,5 +1,4 @@
 from Operator import Operator
-from SingletonMeta import SingletonMeta
 import math
 from Operand import Operand
 
@@ -25,7 +24,7 @@ class AddOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("+ placed out of context")
             return
@@ -46,7 +45,7 @@ class SubOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("- placed out of context")
             return
@@ -67,7 +66,7 @@ class MulOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("* placed out of context")
             return
@@ -88,7 +87,7 @@ class DivOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("/ placed out of context")
             return
@@ -109,7 +108,7 @@ class PowerOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("^ placed out of context")
             return
@@ -130,7 +129,7 @@ class ModuloOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("% placed out of context")
             return
@@ -151,7 +150,7 @@ class AvgOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("@ placed out of context")
             return
@@ -172,7 +171,7 @@ class MaxOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("$ placed out of context")
             return
@@ -193,7 +192,7 @@ class MinOperator(Operator):
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
             if not ((Operand.is_number(operand1) or operand1 == ')' or operand1 in Operator.right_operators_str())
-                    or not (Operand.is_number(
+                    and (Operand.is_number(
                         operand2) or operand2 == '(' or operand2 in Operator.left_operators_str())):
                 raise SyntaxError("& placed out of context")
             return
@@ -212,13 +211,13 @@ class FactorialOperator(Operator):
             raise SyntaxError("Factorial operation requires an operand")
         if for_validation:
             #  in the expression , a 'right' operator can be placed after a closing parenthesis
-            #  , a number or another 'right' operator
+            #  , a number or another 'right' operator , right operators are always stackable
             if not (Operand.is_number(operand1) or operand1 == ')'
                     or operand1 in Operator.right_operators_str()):
                 raise SyntaxError("! placed out of context")
             return
         if not Operand.is_number(operand1) or operand1 < 0:
-            raise TypeError("Operand must be a natural number")
+            raise TypeError("Operand for factorial operation must be a natural number")
         result = 1
         #  factorial operation on the number
         for i in range(2, operand1 + 1):
@@ -236,7 +235,7 @@ class SumDigitsOperator(Operator):
             raise SyntaxError("Sum digits requires an operand")
         if for_validation:
             #  in the expression , a 'right' operator can be placed after a closing parenthesis
-            #  , a number or another 'right' operator
+            #  , a number or another 'right' operator, right operators are always stackable
             if not (Operand.is_number(operand1) or operand1 == ')'
                     or operand1 in Operator.right_operators_str()):
                 raise SyntaxError("# placed out of context")
@@ -254,12 +253,38 @@ class SumDigitsOperator(Operator):
 
 class TildaOperator(Operator):
     # Handles the negation action on an operand
+    # also used for high priority unary negation ( 4+-(4) -> 4+~(4) )
     def __init__(self):
         super().__init__('~', "left", 6)
 
     def execute(self, operand1, for_validation, operand2=None):
         if operand1 is None:
             raise SyntaxError("Tilda Operation requires an operand")
+        if for_validation:
+            #  in the expression , a 'left' operator can be placed before an opening parenthesis
+            #  or a number
+            if not (Operand.is_number(operand1) or operand1 == '('):
+                raise SyntaxError("~ placed out of context")
+            return
+        if not Operand.is_number(operand1):
+            raise TypeError("Operand must be numeric")
+        return -operand1
+
+
+class LowPriorityUnaryNegation(Operator):
+    #  handles the unary negation of an operand
+    #  in cases where it overpowered in terms of priority by other operations
+    #  (-3! -> _3! -> -6 , '!' overpowers '_' )
+    #  only used as a marker after the tokenization has confirmed a valid unary negation attempt
+    #  in this project an error shouldn't be raised from this class's execute method
+    #  because unary negation is validated in the tokenization process
+    #  errors were added for a case of separate use of this class as a standalone
+    def __init__(self):
+        super().__init__('_', "left", 2.5)
+
+    def execute(self, operand1, for_validation, operand2=None):
+        if operand1 is None:
+            raise SyntaxError("unary negation Operation requires an operand")
         if for_validation:
             #  in the expression , a 'left' operator can be placed before an opening parenthesis
             #  or a number

@@ -24,4 +24,3 @@ class Operand(object):
                 return float(value)
             except ValueError:
                 raise ValueError(f"The string '{value}' is not a valid number.")
-
