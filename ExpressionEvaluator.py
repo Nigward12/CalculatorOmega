@@ -59,6 +59,7 @@ class ExpressionEvaluator(object):
             element = ExpressionEvaluator._before_appending(tokens, element)
             if element.strip():
                 tokens.append(element)  # the last token in the expression is a number
+        print(''.join(tokens))
         return tokens
 
     @staticmethod
@@ -73,7 +74,7 @@ class ExpressionEvaluator(object):
                 if len(tokens) == 0 or tokens[len(tokens) - 1] == "(":
                     tokens.append('_')  # unary negation has low priority
                 else:
-                    tokens.append('~')  # unary negation has high priority , tilda used for this case
+                    tokens.append(';')  # unary negation has high priority , tilda used for this case
         if '.' in element:  # validating decimal point placement
             # element can only have one decimal point and it cant be in the first or end
             # decimal point cannot be placed on its own
@@ -102,13 +103,22 @@ class ExpressionEvaluator(object):
 
     @staticmethod
     def _validate_first_token(tokens):
-        #  private method of ExpressionEvaluator , used by validate()
-        #  method to check the validity of the first token in the expression
-        #  first token cant be an operator unless it's a negative sign or tilda with a number after
+        # Private method of ExpressionEvaluator, used by the validate()
+        # method to check the validity of the first token in the expression.
+        # The first token can't be an operator unless it's a negative sign or tilda with a number after.
+
         factory = OperatorFactory()
-        if (tokens[0] in "+*/%$&!^@)" or
-                ((factory.operators.__contains__(tokens[0]) and factory.get_operator(tokens[0]).placement == "left")
-                 and not (Operand.is_number(tokens[1]) or tokens[1] == '('))):
+        is_bad_operator = tokens[0] in "+*/%$&!^@)"
+        is_left_placement_operator = (factory.operators.__contains__(tokens[0]) and
+                                      factory.get_operator(tokens[0]).placement == "left")
+        is_valid_following_token = (Operand.is_number(tokens[1]) or
+                                    tokens[1] == '(' or
+                                    (factory.operators.__contains__(tokens[1]) and
+                                     factory.get_operator(tokens[1]).placement == "left" and
+                                     tokens[1] != tokens[0]))
+
+        # Check if the first token is an invalid operator
+        if is_bad_operator or (is_left_placement_operator and not is_valid_following_token):
             raise SyntaxError(f"'{tokens[0]}' can't be the first character in the expression")
 
     @staticmethod
@@ -243,7 +253,6 @@ class ExpressionEvaluator(object):
         # Pop all the remaining elements from the stack
         while operators:
             postfix_tokens.append(operators.pop())
-        print(''.join(postfix_tokens))
         return postfix_tokens  # return the converted list
 
     @staticmethod

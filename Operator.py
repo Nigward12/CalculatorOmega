@@ -33,4 +33,4 @@ class Operator(object, metaclass=SingletonMeta):
 
     @staticmethod
     def left_operators_str():
-        return "~"
+        return "~_;"

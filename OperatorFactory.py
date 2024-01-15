@@ -1,6 +1,6 @@
 from OperatorSubClasses import (AddOperator, SubOperator, MulOperator, DivOperator, PowerOperator, ModuloOperator,
                                 AvgOperator, MaxOperator, MinOperator, FactorialOperator, TildaOperator,
-                                SumDigitsOperator, LowPriorityUnaryNegation)
+                                SumDigitsOperator, LowPriorityUnaryNegation , HighPriorityUnaryNegation)
 from SingletonMeta import SingletonMeta
 
 
@@ -22,7 +22,8 @@ class OperatorFactory(object, metaclass=SingletonMeta):
             '!': FactorialOperator,
             '~': TildaOperator,
             '#': SumDigitsOperator,
-            '_': LowPriorityUnaryNegation
+            '_': LowPriorityUnaryNegation,
+            ';': HighPriorityUnaryNegation
         }
 
     def get_operator(self, symbol):

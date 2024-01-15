@@ -263,7 +263,8 @@ class TildaOperator(Operator):
         if for_validation:
             #  in the expression , a 'left' operator can be placed before an opening parenthesis
             #  or a number
-            if not (Operand.is_number(operand1) or operand1 == '('):
+            if not (Operand.is_number(operand1) or operand1 == '('
+                    or (operand1 in Operator.left_operators_str() and operand1 != self.symbol)):
                 raise SyntaxError("~ placed out of context")
             return
         if not Operand.is_number(operand1):
@@ -288,8 +289,34 @@ class LowPriorityUnaryNegation(Operator):
         if for_validation:
             #  in the expression , a 'left' operator can be placed before an opening parenthesis
             #  or a number
-            if not (Operand.is_number(operand1) or operand1 == '('):
-                raise SyntaxError("~ placed out of context")
+            if not (Operand.is_number(operand1) or operand1 == '('
+                    or (operand1 in Operator.left_operators_str() and operand1 != self.symbol)):
+                raise SyntaxError("_ placed out of context")
+            return
+        if not Operand.is_number(operand1):
+            raise TypeError("Operand must be numeric")
+        return -operand1
+
+
+class HighPriorityUnaryNegation(Operator):
+    #  handles the unary negation of an operand
+    # used for high priority unary negation , cases like: ( 4+-(4) -> 4+;(4) -> 4-4 -> 0 )
+    #  only used as a marker after the tokenization has confirmed a valid unary negation attempt
+    #  in this project an error shouldn't be raised from this class's execute method
+    #  because unary negation is validated in the tokenization process
+    #  errors were added for a case of separate use of this class as a standalone
+    def __init__(self):
+        super().__init__(';', "left", 7)
+
+    def execute(self, operand1, for_validation, operand2=None):
+        if operand1 is None:
+            raise SyntaxError("unary negation Operation requires an operand")
+        if for_validation:
+            #  in the expression , a 'left' operator can be placed before an opening parenthesis
+            #  or a number
+            if not (Operand.is_number(operand1) or operand1 == '('
+                    or (operand1 in Operator.left_operators_str() and operand1 != self.symbol)):
+                raise SyntaxError("; placed out of context")
             return
         if not Operand.is_number(operand1):
             raise TypeError("Operand must be numeric")
