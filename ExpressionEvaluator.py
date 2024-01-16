@@ -61,6 +61,7 @@ class ExpressionEvaluator(object):
             element = ExpressionEvaluator._before_appending(tokens, element)
             if element.strip():
                 tokens.append(element)  # the last token in the expression is a number
+        print(''.join(tokens))
         return tokens
 
     @staticmethod
@@ -163,21 +164,37 @@ class ExpressionEvaluator(object):
         factory = OperatorFactory()
         for i in range(1, len(tokens) - 1):
             if factory.operators.__contains__(tokens[i]):
+
                 if factory.get_operator(tokens[i]).placement == "left":
+                    # an operand or a right operator cant be placed before of a left operator
+                    # no need to check for a right operator as the right operator validation
+                    # process will detect the left operator before the validation process reaches it
+                    if Operand.is_number(tokens[i - 1]):
+                        raise SyntaxError(
+                            f"at {i}'th-{i + 1}'th elements ,"
+                            f" {tokens[i - 1]} cant be placed on the left of a {tokens[i]}")
                     #  left operator works on the next token in the expression
                     try:
                         factory.get_operator('~').execute(tokens[i + 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i + 1}'th-{i + 2}'th tokens , "
+                        raise type(e)(f"at {i + 1}'th-{i + 2}'th elements , "
                                       f"'{tokens[i]}{tokens[i + 1]}' : {se_message} ")
+
                 elif factory.get_operator(tokens[i]).placement == "right":
+                    # an operand or a left operator cant be placed in front of a right operator
+                    if (Operand.is_number(tokens[i + 1]) or
+                            (factory.operators.__contains__(tokens[i + 1]) and factory.get_operator(
+                                tokens[i + 1]).placement == "left")):
+                        raise SyntaxError(
+                            f"at {i + 1}'th-{i + 2}'th elements ,"
+                            f" {tokens[i + 1]} cant be placed on the right of a {tokens[i]}")
                     #  right operator works on the previous token in the expression
                     try:
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i}'th-{i + 1}'th tokens , "
+                        raise type(e)(f"at {i}'th-{i + 1}'th elements , "
                                       f"'{tokens[i - 1]}{tokens[i]}': {se_message}")
                 else:
                     #  middle operator works on the previous and next tokens
@@ -185,7 +202,7 @@ class ExpressionEvaluator(object):
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True, tokens[i + 1])
                     except (SyntaxError, TypeError, ZeroDivisionError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i}'th-{i + 2}'th tokens , "
+                        raise type(e)(f"at {i}'th-{i + 2}'th elements , "
                                       f"'{tokens[i - 1]}{tokens[i]}{tokens[i + 1]}': {se_message}")
 
     @staticmethod

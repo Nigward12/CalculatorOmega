@@ -1,7 +1,10 @@
 import pytest
 from ExpressionEvaluator import ExpressionEvaluator
 
-# Test cases
+# pytest file for checking the calculator for correct handling of valid expressions and their evaluation
+# and for correct handling of Invalid expressions and the raising of correct errors with informative info
+# about the cause of the error
+
 valid_test_cases = [
     #  list of valid expressions and the result they should logically provide
     #  format : ("expression" , expected result)
@@ -34,7 +37,8 @@ valid_test_cases = [
     ("---(3 + 4)", -7),
     ("5   5", 55),
     ("4!!##", 9),
-    ("~-4!", 24)
+    ("~-4!", 24),
+    ("1####", 1)
 ]
 
 
@@ -85,6 +89,10 @@ invalid_test_cases = [
     ("4+4&*3", SyntaxError),
     ("4+5$", SyntaxError),
     ("~4!", TypeError),
+    ("1!!!!2", SyntaxError),
+    ("3!~2", SyntaxError),
+    ("3!!!3", SyntaxError),
+    ("2~2", SyntaxError),
     # to check for EOF and KeyboardInterrupt Errors , run them in main
 ]
 

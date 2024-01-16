@@ -268,7 +268,7 @@ class TildaOperator(Operator):
             raise SyntaxError("Tilda Operation requires an operand")
         if for_validation:
             #  in the expression , a 'left' operator can be placed before an opening parenthesis
-            #  or a number
+            #  or a number or a left operator different from himself (with a different affect)
             if not (Operand.is_number(operand1) or operand1 == '('
                     or (operand1 in Operator.left_operators_str() and operand1 != self.symbol)):
                 raise SyntaxError("~ placed out of context")
@@ -294,7 +294,7 @@ class LowPriorityUnaryNegation(Operator):
             raise SyntaxError("unary negation Operation requires an operand")
         if for_validation:
             #  in the expression , a 'left' operator can be placed before an opening parenthesis
-            #  or a number
+            #  or a number or a left operator different from himself (with a different affect)
             if not (Operand.is_number(operand1) or operand1 == '('
                     or (operand1 in Operator.left_operators_str() and operand1 != self.symbol)):
                 raise SyntaxError("_ placed out of context")
@@ -319,7 +319,7 @@ class HighPriorityUnaryNegation(Operator):
             raise SyntaxError("unary negation Operation requires an operand")
         if for_validation:
             #  in the expression , a 'left' operator can be placed before an opening parenthesis
-            #  or a number
+            #  or a number or a left operator different from himself (with a different affect)
             if not (Operand.is_number(operand1) or operand1 == '('
                     or (operand1 in Operator.left_operators_str() and operand1 != self.symbol)):
                 raise SyntaxError("; placed out of context")
