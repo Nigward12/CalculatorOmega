@@ -12,6 +12,10 @@ from Operand import Operand
 #  the second option of execution for the execute method is for the actual calculation
 #  of the action the class represents on the operands that were sent , in this option
 #  for_validation must be false and the operands must be a numeric value
+
+#  a small part of the errors that can rise up in the execute method of the operators
+#  will most likely never rise up in this specific project but are there to allow
+#  use of these classes on their own outside of this specific project (theoretically)
 class AddOperator(Operator):
     # Handles the addition action between two operands
     def __init__(self):
@@ -83,6 +87,8 @@ class DivOperator(Operator):
     def execute(self, operand1, for_validation, operand2=None):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Division requires two operands")
+        if Operand.is_number(operand2) and Operand.convert_to_number(operand2) == 0:
+            raise ZeroDivisionError("cant divide by zero")
         if for_validation:
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator

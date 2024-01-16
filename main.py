@@ -5,13 +5,21 @@ if __name__ == '__main__':
     #  and validation of syntax , if the expression is valid , it will be converted to
     #  postfix and calculated according to the shunting yard algorithm
     #  the program will keep receiving new inputs until the input is "done"
-    expression = input("Enter a valid infix expression for calculation , enter \"done\" to exit: ")
+    try:
+        expression = input("Enter a valid infix expression for calculation , enter \"done\" to exit: ")
+    except (EOFError, KeyboardInterrupt) as e:
+        print(f"{e}")
+        exit(0)
     while not expression == "done":
         try:
             tokens = ExpressionEvaluator.tokenize(expression)
             ExpressionEvaluator.validate(tokens)
             result = ExpressionEvaluator.to_postfix(tokens)
             print(f"{ExpressionEvaluator.evaluate_postfix(result)}")
-        except (SyntaxError, TypeError) as e:
+        except (SyntaxError, TypeError, ZeroDivisionError) as e:
             print(f"{e}")
-        expression = input("Enter a valid infix expression for calculation , enter \"done\" to exit: ")
+        try:
+            expression = input("Enter a valid infix expression for calculation , enter \"done\" to exit: ")
+        except (EOFError, KeyboardInterrupt) as e:
+            print(f"{e}")
+            exit(0)

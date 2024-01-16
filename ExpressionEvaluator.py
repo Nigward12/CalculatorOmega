@@ -23,6 +23,8 @@ class ExpressionEvaluator(object):
             char = expression[i]
             if char.isdigit() or char == ".":  # handling the conjoining of adjacent digits
                 element += char  # or decimal point to one token
+            elif char in " \t":  # just for readability and understanding whitespaces between digits (5  5->55)
+                pass
             else:
                 if element:
                     element = ExpressionEvaluator._before_appending(tokens, element)
@@ -66,7 +68,7 @@ class ExpressionEvaluator(object):
     def _before_appending(tokens, element):
         #  private method of ExpressionEvaluator , used by tokenize() method
         #  method checks and fixes an operand element before appending it to the tokens list
-
+        factory = OperatorFactory()
         if '-' in element:  # handling the tokenization adjacent negative signing of a number
             count = element.count('-')  # (like ------3=3 , ---3=-3)
             element = element[count:]
@@ -74,7 +76,7 @@ class ExpressionEvaluator(object):
                 if len(tokens) == 0 or tokens[len(tokens) - 1] == "(":
                     tokens.append('_')  # unary negation has low priority
                 else:
-                    tokens.append(';')  # unary negation has high priority , tilda used for this case
+                    tokens.append(';')  # unary negation has high priority
         if '.' in element:  # validating decimal point placement
             # element can only have one decimal point and it cant be in the first or end
             # decimal point cannot be placed on its own
@@ -98,7 +100,7 @@ class ExpressionEvaluator(object):
             ExpressionEvaluator._validate_parenthesis(tokens)
             ExpressionEvaluator._validate_operators(tokens)
             ExpressionEvaluator._validate_last_token(tokens)
-        except (SyntaxError, TypeError) as e:
+        except (SyntaxError, TypeError, ZeroDivisionError) as e:
             raise type(e)(f"{e}")
 
     @staticmethod
@@ -108,17 +110,18 @@ class ExpressionEvaluator(object):
         # The first token can't be an operator unless it's a negative sign or tilda with a number after.
 
         factory = OperatorFactory()
-        is_bad_operator = tokens[0] in "+*/%$&!^@)"
         is_left_placement_operator = (factory.operators.__contains__(tokens[0]) and
                                       factory.get_operator(tokens[0]).placement == "left")
-        is_valid_following_token = (Operand.is_number(tokens[1]) or
-                                    tokens[1] == '(' or
-                                    (factory.operators.__contains__(tokens[1]) and
-                                     factory.get_operator(tokens[1]).placement == "left" and
-                                     tokens[1] != tokens[0]))
+        is_valid_following_token = len(tokens) > 1 and (Operand.is_number(tokens[1]) or
+                                                        tokens[1] == '(' or
+                                                        (factory.operators.__contains__(tokens[1]) and
+                                                         factory.get_operator(tokens[1]).placement == "left" and
+                                                         tokens[1] != tokens[0]))
+
+        is_bad_operator = tokens[0] in factory.operators and not is_left_placement_operator
 
         # Check if the first token is an invalid operator
-        if is_bad_operator or (is_left_placement_operator and not is_valid_following_token):
+        if is_bad_operator or (is_left_placement_operator and not is_valid_following_token) or tokens[0] == ")":
             raise SyntaxError(f"'{tokens[0]}' can't be the first character in the expression")
 
     @staticmethod
@@ -129,6 +132,8 @@ class ExpressionEvaluator(object):
         #  more parenthesis of one kind than the other , also checks for empty parenthesis
         open_parenthesis_cnt = 0
         for i in range(0, len(tokens)):
+            if Operand.is_number(tokens[i]) and i < len(tokens) - 1 and tokens[i + 1] == "(":
+                raise SyntaxError("No suggested multiplication on parenthesis in this calculator")
             if tokens[i] == '(':
                 # open parenthesis in the end of the expression
                 # a separate if is needed to avoid going out of bounds in the tokens list
@@ -140,7 +145,7 @@ class ExpressionEvaluator(object):
             elif tokens[i] == ')':
                 open_parenthesis_cnt -= 1
                 if open_parenthesis_cnt < 0:
-                    raise SyntaxError(f"Unmatched closing parenthesis at position {i}.")
+                    raise SyntaxError("Mismatched parentheses in expression.")
             # Add more checks as needed
 
         if open_parenthesis_cnt != 0:
@@ -179,7 +184,7 @@ class ExpressionEvaluator(object):
                     #  middle operator works on the previous and next tokens
                     try:
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True, tokens[i + 1])
-                    except (SyntaxError, TypeError) as e:
+                    except (SyntaxError, TypeError, ZeroDivisionError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
                         raise type(e)(f"at {i}'th-{i + 2}'th tokens , "
                                       f"'{tokens[i - 1]}{tokens[i]}{tokens[i + 1]}': {se_message}")
@@ -253,6 +258,7 @@ class ExpressionEvaluator(object):
         # Pop all the remaining elements from the stack
         while operators:
             postfix_tokens.append(operators.pop())
+        print(''.join(postfix_tokens))
         return postfix_tokens  # return the converted list
 
     @staticmethod
