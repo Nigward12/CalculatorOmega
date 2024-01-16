@@ -61,7 +61,6 @@ class ExpressionEvaluator(object):
             element = ExpressionEvaluator._before_appending(tokens, element)
             if element.strip():
                 tokens.append(element)  # the last token in the expression is a number
-        print(''.join(tokens))
         return tokens
 
     @staticmethod
@@ -122,7 +121,7 @@ class ExpressionEvaluator(object):
 
         # Check if the first token is an invalid operator
         if is_bad_operator or (is_left_placement_operator and not is_valid_following_token) or tokens[0] == ")":
-            raise SyntaxError(f"'{tokens[0]}' can't be the first character in the expression")
+            raise SyntaxError(f"first character in expression is placed out of context")
 
     @staticmethod
     def _validate_parenthesis(tokens):
@@ -258,7 +257,6 @@ class ExpressionEvaluator(object):
         # Pop all the remaining elements from the stack
         while operators:
             postfix_tokens.append(operators.pop())
-        print(''.join(postfix_tokens))
         return postfix_tokens  # return the converted list
 
     @staticmethod
