@@ -23,7 +23,8 @@ class ExpressionEvaluator(object):
             char = expression[i]
             if char.isdigit() or char == ".":  # handling the conjoining of adjacent digits
                 element += char  # or decimal point to one token
-            elif char in " \t":  # just for readability and understanding whitespaces between digits (5  5->55)
+            # just for readability and understanding whitespaces between digits (5 . 5->5.5)
+            elif Operand.is_white_space(char):
                 pass
             else:
                 if element:
@@ -41,21 +42,23 @@ class ExpressionEvaluator(object):
                                          factory.get_operator(
                                              previous_char).placement != "right") or previous_char == '(')):
                     #  add all the consecutive unary negation signs into one token
-                    while i < len(expression) and expression[i] == '-':
-                        element += "-"
+                    #  unary negation signs can have white spaces between them
+                    while i < len(expression) and (expression[i] == '-' or Operand.is_white_space(expression[i])):
+                        if expression[i] == '-':
+                            element += "-"
                         i += 1
                     if i == len(expression) or factory.operators.__contains__(expression[i]):
                         # unary signing can only work on a number or parenthesis
                         raise SyntaxError("unary negative signing has no context")
                     previous_char = expression[i - 1]
+                    print(element)
                     continue
                 elif char in "()" or char in factory.operators:
                     tokens.append(char)
-                elif char in " \t":
-                    pass
                 else:
                     raise SyntaxError(f"Invalid character '{char}' in input expression")
-            previous_char = char
+            if not Operand.is_white_space(char):  # skipping white spaces
+                previous_char = char
             i += 1
         if element:  # adding the last number in a case where
             element = ExpressionEvaluator._before_appending(tokens, element)
@@ -140,7 +143,7 @@ class ExpressionEvaluator(object):
                 if i == len(tokens) - 1:
                     raise SyntaxError("open parenthesis in the end of the expression")
                 if (tokens[i + 1]) == ')':
-                    raise SyntaxError(f"at {i + 1}'th-{i + 2}'th characters, '()', empty parenthesis are not allowed")
+                    raise SyntaxError(f"at elements {i + 1}-{i + 2}, '()', empty parenthesis are not allowed")
                 open_parenthesis_cnt += 1
             elif tokens[i] == ')':
                 open_parenthesis_cnt -= 1
@@ -171,14 +174,14 @@ class ExpressionEvaluator(object):
                     # process will detect the left operator before the validation process reaches it
                     if Operand.is_number(tokens[i - 1]):
                         raise SyntaxError(
-                            f"at {i}'th-{i + 1}'th elements ,"
+                            f"at elements {i + 1}-{i + 2} ,"
                             f" {tokens[i - 1]} cant be placed on the left of a {tokens[i]}")
                     #  left operator works on the next token in the expression
                     try:
                         factory.get_operator('~').execute(tokens[i + 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i + 1}'th-{i + 2}'th elements , "
+                        raise type(e)(f"at elements {i + 1}-{i + 2} , "
                                       f"'{tokens[i]}{tokens[i + 1]}' : {se_message} ")
 
                 elif factory.get_operator(tokens[i]).placement == "right":
@@ -187,14 +190,14 @@ class ExpressionEvaluator(object):
                             (factory.operators.__contains__(tokens[i + 1]) and factory.get_operator(
                                 tokens[i + 1]).placement == "left")):
                         raise SyntaxError(
-                            f"at {i + 1}'th-{i + 2}'th elements ,"
+                            f"at elements {i + 1}-{i + 2} ,"
                             f" {tokens[i + 1]} cant be placed on the right of a {tokens[i]}")
                     #  right operator works on the previous token in the expression
                     try:
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True)
                     except (SyntaxError, TypeError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i}'th-{i + 1}'th elements , "
+                        raise type(e)(f"at elements {i + 1}-{i + 2} , "
                                       f"'{tokens[i - 1]}{tokens[i]}': {se_message}")
                 else:
                     #  middle operator works on the previous and next tokens
@@ -202,7 +205,7 @@ class ExpressionEvaluator(object):
                         factory.get_operator(tokens[i]).execute(tokens[i - 1], True, tokens[i + 1])
                     except (SyntaxError, TypeError, ZeroDivisionError) as e:
                         se_message = e.args[0] if e.args else "Unknown error"
-                        raise type(e)(f"at {i}'th-{i + 2}'th elements , "
+                        raise type(e)(f"at elements {i + 1}-{i + 2} , "
                                       f"'{tokens[i - 1]}{tokens[i]}{tokens[i + 1]}': {se_message}")
 
     @staticmethod

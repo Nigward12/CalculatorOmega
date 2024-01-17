@@ -24,3 +24,7 @@ class Operand(object):
                 return float(value)
             except ValueError:
                 raise ValueError(f"The string '{value}' is not a valid number.")
+
+    @staticmethod
+    def is_white_space(element):
+        return element in " \t"

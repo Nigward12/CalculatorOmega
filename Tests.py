@@ -38,7 +38,10 @@ valid_test_cases = [
     ("5   5", 55),
     ("4!!##", 9),
     ("~-4!", 24),
-    ("1####", 1)
+    ("1####", 1),
+    ("-3^2", -9),
+    ("5  .   5", 5.5),
+    ("~-4!#&7$4@6%4^2+(-4*3)", -8)
 ]
 
 
@@ -93,6 +96,10 @@ invalid_test_cases = [
     ("3!~2", SyntaxError),
     ("3!!!3", SyntaxError),
     ("2~2", SyntaxError),
+    ("~--3!", TypeError),
+    ("--~--3", SyntaxError),
+    ("~--~-3", SyntaxError),
+    ("2 - - 3!", TypeError),
     # to check for EOF and KeyboardInterrupt Errors , run them in main
 ]
 
