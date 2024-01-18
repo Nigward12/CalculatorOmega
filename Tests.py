@@ -60,7 +60,7 @@ def test_calculator_valids(expression, expected):
         print(f"Expected result: '{expected}'")
         print(f"Actual result: '{actual}'")
         assert actual == expected
-    except (SyntaxError, TypeError, ZeroDivisionError, ValueError) as e:
+    except (SyntaxError, TypeError, ZeroDivisionError) as e:
         pytest.fail(f"Test failed with error: {e}")
 
 

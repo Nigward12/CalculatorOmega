@@ -102,7 +102,7 @@ class ExpressionEvaluator(object):
             ExpressionEvaluator._validate_parenthesis(tokens)
             ExpressionEvaluator._validate_operators(tokens)
             ExpressionEvaluator._validate_last_token(tokens)
-        except (SyntaxError, TypeError, ZeroDivisionError, ValueError) as e:
+        except (SyntaxError, TypeError, ZeroDivisionError) as e:
             raise type(e)(f"{e}")
 
     @staticmethod

@@ -16,7 +16,7 @@ if __name__ == '__main__':
             ExpressionEvaluator.validate(tokens)
             result = ExpressionEvaluator.to_postfix(tokens)
             print(f"{ExpressionEvaluator.evaluate_postfix(result)}")
-        except (SyntaxError, TypeError, ZeroDivisionError, ValueError) as e:
+        except (SyntaxError, TypeError, ZeroDivisionError) as e:
             print(f"{e}")
         try:
             expression = input("Enter a valid infix expression for calculation , enter \"done\" to exit: ")
