@@ -1,3 +1,5 @@
+from builtins import staticmethod
+
 from SingletonMeta import SingletonMeta
 
 
@@ -34,3 +36,4 @@ class Operator(object, metaclass=SingletonMeta):
     @staticmethod
     def left_operators_str():
         return "~_;"
+

@@ -60,7 +60,7 @@ def test_calculator_valids(expression, expected):
         print(f"Expected result: '{expected}'")
         print(f"Actual result: '{actual}'")
         assert actual == expected
-    except (SyntaxError, TypeError, ZeroDivisionError) as e:
+    except (SyntaxError, TypeError, ZeroDivisionError, ValueError) as e:
         pytest.fail(f"Test failed with error: {e}")
 
 
@@ -101,6 +101,7 @@ invalid_test_cases = [
     ("--~--3", SyntaxError),
     ("~--~-3", SyntaxError),
     ("2 - - 3!", TypeError),
+    ("0^-1", ZeroDivisionError)
     # to check for EOF and KeyboardInterrupt Errors , run them in main
 ]
 

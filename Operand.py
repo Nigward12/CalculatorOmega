@@ -28,3 +28,4 @@ class Operand(object):
     @staticmethod
     def is_white_space(element):
         return element in " \t"
+

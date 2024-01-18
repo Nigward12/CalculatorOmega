@@ -1,4 +1,4 @@
-from Operator import Operator
+from Operators.Operator import Operator
 import math
 from Operand import Operand
 
@@ -7,7 +7,7 @@ from Operand import Operand
 #  each operator has his own logic for validation and output
 #  each operator realized the abstract method execute from operator
 #  this method has two options for execution , one is used only for input validation
-#  and checks if the operands received are logically correct for the operators context
+#  and checks if the operands received are placed logically correct for the operators context
 #  for this execution option the for_validation input variable of the method must be true
 #  the second option of execution for the execute method is for the actual calculation
 #  of the action the class represents on the operands that were sent , in this option
@@ -87,8 +87,6 @@ class DivOperator(Operator):
     def execute(self, operand1, for_validation, operand2=None):
         if operand2 is None or operand1 is None:
             raise SyntaxError("Division requires two operands")
-        if Operand.is_number(operand2) and Operand.convert_to_number(operand2) == 0:
-            raise ZeroDivisionError("cant divide by zero")
         if for_validation:
             #  in the expression , a 'middle' operator can be placed next to parenthesis from both sides
             #  , a number , after a 'right' operator and before a 'left' operator
@@ -99,7 +97,10 @@ class DivOperator(Operator):
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        return operand1 / operand2
+        try:
+            return operand1 / operand2
+        except ZeroDivisionError :
+            raise ZeroDivisionError("cant divide by zero")
 
 
 class PowerOperator(Operator):
@@ -120,7 +121,10 @@ class PowerOperator(Operator):
             return
         if not Operand.is_number(operand1) or not Operand.is_number(operand2):
             raise TypeError("Operands must be numeric")
-        return math.pow(operand1, operand2)
+        try:
+            return math.pow(operand1, operand2)
+        except ValueError:
+            raise ZeroDivisionError("can raise zero by a negative number - division by zero")
 
 
 class ModuloOperator(Operator):

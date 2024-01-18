@@ -1,5 +1,5 @@
 from Operand import Operand
-from OperatorFactory import OperatorFactory
+from Operators.OperatorFactory import OperatorFactory
 
 
 class ExpressionEvaluator(object):
@@ -23,8 +23,9 @@ class ExpressionEvaluator(object):
             char = expression[i]
             if char.isdigit() or char == ".":  # handling the conjoining of adjacent digits
                 element += char  # or decimal point to one token
-            # just for readability and understanding whitespaces between digits (5 . 5->5.5)
             elif Operand.is_white_space(char):
+                # just for readability and understanding whitespaces between digits or operators
+                # (5 . 5->5.5) (5- - - 3 -> 5---3 -> 5-3)
                 pass
             else:
                 if element:
@@ -51,7 +52,6 @@ class ExpressionEvaluator(object):
                         # unary signing can only work on a number or parenthesis
                         raise SyntaxError("unary negative signing has no context")
                     previous_char = expression[i - 1]
-                    print(element)
                     continue
                 elif char in "()" or char in factory.operators:
                     tokens.append(char)
@@ -64,7 +64,6 @@ class ExpressionEvaluator(object):
             element = ExpressionEvaluator._before_appending(tokens, element)
             if element.strip():
                 tokens.append(element)  # the last token in the expression is a number
-        print(''.join(tokens))
         return tokens
 
     @staticmethod
@@ -103,7 +102,7 @@ class ExpressionEvaluator(object):
             ExpressionEvaluator._validate_parenthesis(tokens)
             ExpressionEvaluator._validate_operators(tokens)
             ExpressionEvaluator._validate_last_token(tokens)
-        except (SyntaxError, TypeError, ZeroDivisionError) as e:
+        except (SyntaxError, TypeError, ZeroDivisionError, ValueError) as e:
             raise type(e)(f"{e}")
 
     @staticmethod

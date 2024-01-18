@@ -1,6 +1,6 @@
-from OperatorSubClasses import (AddOperator, SubOperator, MulOperator, DivOperator, PowerOperator, ModuloOperator,
-                                AvgOperator, MaxOperator, MinOperator, FactorialOperator, TildaOperator,
-                                SumDigitsOperator, LowPriorityUnaryNegation , HighPriorityUnaryNegation)
+from Operators.OperatorSubClasses import (AddOperator, SubOperator, MulOperator, DivOperator, PowerOperator, ModuloOperator,
+                                          AvgOperator, MaxOperator, MinOperator, FactorialOperator, TildaOperator,
+                                          SumDigitsOperator, LowPriorityUnaryNegation , HighPriorityUnaryNegation)
 from SingletonMeta import SingletonMeta
 
 
