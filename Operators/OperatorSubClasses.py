@@ -124,7 +124,7 @@ class PowerOperator(Operator):
         try:
             return math.pow(operand1, operand2)
         except ValueError:
-            raise ZeroDivisionError("can raise zero by a negative number - division by zero")
+            raise ZeroDivisionError("cant raise zero by a negative number - division by zero")
 
 
 class ModuloOperator(Operator):

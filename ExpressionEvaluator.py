@@ -109,7 +109,7 @@ class ExpressionEvaluator(object):
     def _validate_first_token(tokens):
         # Private method of ExpressionEvaluator, used by the validate()
         # method to check the validity of the first token in the expression.
-        # The first token can't be an operator unless it's a negative sign or tilda with a number after.
+        # The first token can't be an operator unless it's a negative sign or left operator with a number after.
 
         factory = OperatorFactory()
         is_left_placement_operator = (factory.operators.__contains__(tokens[0]) and
