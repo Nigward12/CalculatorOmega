@@ -22,9 +22,11 @@ class Operator(object, metaclass=SingletonMeta):
 
     #  the methods below are used to return a comparison string
     #  to check if a character is an operator of some kind
-    #  used in operatorSubClasses to avoid circular imports
+    #  used in the subclasses of operator to avoid circular imports
     #  from operator factory (it also contains an operator list
     #  but imports operatorSubClasses)
+    # and also to avoid dependency between Operator and its subclasses on other classes
+    # which allows use of these classes as a standalone
     @staticmethod
     def operators_str():
         return "+-*/!@#$%&^~"
