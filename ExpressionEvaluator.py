@@ -242,6 +242,8 @@ class ExpressionEvaluator(object):
 
     @staticmethod
     def to_postfix(tokens):
+        # method used to convert a mathematical expression to postfix notation
+
         postfix_tokens = []  # output list that will contain the tokens list after conversion to postfix
         operators = []
         factory = OperatorFactory()
@@ -291,6 +293,8 @@ class ExpressionEvaluator(object):
 
     @staticmethod
     def evaluate_postfix(postfix_tokens):
+        # method used to evaluate a postfix expression
+
         operand_stack = []
         factory = OperatorFactory()
         # Iterate over the postfix tokens list
