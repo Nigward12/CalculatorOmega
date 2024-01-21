@@ -229,7 +229,7 @@ class FactorialOperator(Operator):
                     or operand1 in Operator.right_operators_str()):
                 raise SyntaxError("! placed out of context")
             return
-        if not Operand.is_number(operand1) or operand1 < 0:
+        if not Operand.is_number(operand1) or operand1 < 0 or type(operand1) is float:
             raise TypeError("Operand for factorial operation must be a natural number")
         result = 1
         #  factorial operation on the number
