@@ -255,13 +255,13 @@ class SumDigitsOperator(Operator):
             return
         if not Operand.is_number(operand1) or Operand.convert_to_number(operand1) < 0:
             raise TypeError("Operand for SumDigits must be numeric and positive")
-        result = 0
-        operand1 = str(operand1).replace('.', '')  # removing decimal point
-        operand1 = Operand.convert_to_number(operand1)
-        while operand1 > 0:  # sum the digits
-            result += operand1 % 10
-            operand1 = operand1 // 10
-        return result
+        number_str = str(operand1)
+        # for very .... very .... long numbers
+        if 'e' in number_str or 'E' in number_str:
+            number_str = '{:.0f}'.format(operand1)
+        # remove decimal point
+        number_str = number_str.replace('.', '')
+        return sum(int(digit) for digit in number_str if digit.isdigit())
 
 
 class TildaOperator(Operator):
