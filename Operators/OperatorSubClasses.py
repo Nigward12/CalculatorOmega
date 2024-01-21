@@ -127,7 +127,7 @@ class PowerOperator(Operator):
             if operand1 == 0:
                 raise ZeroDivisionError("cant raise zero by a negative number - division by zero")
             else:
-                raise ValueError("cant raise a negative number by a non integer number")
+                raise ValueError("cant raise a negative number by a non integer number - complex result")
 
 
 class ModuloOperator(Operator):
