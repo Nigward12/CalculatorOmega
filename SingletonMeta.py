@@ -10,8 +10,10 @@ class SingletonMeta(type):
 
     # * this metaclass and the way it works in creating objects as "singletons" is not thread safe
     # as it is , I added it with the thought that if a program like this was used it would have been locally
-    # in an actual calculator or an offline app for phone or computer so that there is only one thread
-    # entering the __call__ method each time at all times
+    # in an actual calculator or an offline app for phone or computer that will not create more
+    # than one thread at a time so that there is only one thread
+    # entering the __call__ method each time
+    # for creating a safe multithread environment in the future we can use _lock
     _instances = {}
 
     def __call__(cls, *args, **kwargs):

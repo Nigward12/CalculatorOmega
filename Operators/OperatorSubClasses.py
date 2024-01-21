@@ -99,7 +99,7 @@ class DivOperator(Operator):
             raise TypeError("Operands must be numeric")
         try:
             return operand1 / operand2
-        except ZeroDivisionError :
+        except ZeroDivisionError:
             raise ZeroDivisionError("cant divide by zero")
 
 
@@ -124,7 +124,10 @@ class PowerOperator(Operator):
         try:
             return math.pow(operand1, operand2)
         except ValueError:
-            raise ZeroDivisionError("cant raise zero by a negative number - division by zero")
+            if operand1 == 0:
+                raise ZeroDivisionError("cant raise zero by a negative number - division by zero")
+            else:
+                raise ValueError("cant raise a negative number by a non integer number")
 
 
 class ModuloOperator(Operator):
@@ -250,8 +253,8 @@ class SumDigitsOperator(Operator):
                     or operand1 in Operator.right_operators_str()):
                 raise SyntaxError("# placed out of context")
             return
-        if not Operand.is_number(operand1):
-            raise TypeError("Operand must be numeric")
+        if not Operand.is_number(operand1) or Operand.convert_to_number(operand1) < 0:
+            raise TypeError("Operand for SumDigits must be numeric and positive")
         result = 0
         operand1 = str(operand1).replace('.', '')  # removing decimal point
         operand1 = Operand.convert_to_number(operand1)

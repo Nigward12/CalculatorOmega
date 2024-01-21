@@ -102,7 +102,7 @@ class ExpressionEvaluator(object):
             ExpressionEvaluator._validate_parenthesis(tokens)
             ExpressionEvaluator._validate_operators(tokens)
             ExpressionEvaluator._validate_last_token(tokens)
-        except (SyntaxError, TypeError, ZeroDivisionError) as e:
+        except (SyntaxError, TypeError, ZeroDivisionError, ValueError) as e:
             raise type(e)(f"{e}")
 
     @staticmethod
@@ -321,4 +321,4 @@ class ExpressionEvaluator(object):
                     val1 = operand_stack.pop()
                     val2 = operand_stack.pop()
                     operand_stack.append(current_operator.execute(val2, False, val1))
-        return operand_stack.pop()
+        return round(operand_stack.pop(), 10)
