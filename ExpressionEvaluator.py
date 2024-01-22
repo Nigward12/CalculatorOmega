@@ -38,6 +38,8 @@ class ExpressionEvaluator(object):
                         # will come from the parenthesis in calculation
                         tokens.append(element)
                     element = ""
+                # if a '-' is spotted after a nonRight operator or after a closing parenthesis
+                # it's an unary negation sign
                 if (char == '-' and (previous_char is None
                                      or (factory.operators.__contains__(previous_char) and
                                          factory.get_operator(
@@ -53,7 +55,9 @@ class ExpressionEvaluator(object):
                         raise SyntaxError("unary negative signing has no context")
                     previous_char = expression[i - 1]
                     continue
-                elif char in "()" or char in factory.operators:
+                # parenthesis and non system implemented operator signs are allowed
+                elif (char in "()" or
+                      (char in factory.operators and char not in factory.system_implemented_operators)):
                     tokens.append(char)
                 else:
                     raise SyntaxError(f"Invalid character '{char}' in input expression")

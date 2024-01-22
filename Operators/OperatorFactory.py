@@ -25,6 +25,12 @@ class OperatorFactory(object, metaclass=SingletonMeta):
             '_': LowPriorityUnaryNegation,
             ';': HighPriorityUnaryNegation
         }
+        # service operators that are only used by the program in calculation process
+        # these operators cannot be perceived in the input expression
+        self.system_implemented_operators = {
+            '_': LowPriorityUnaryNegation,
+            ';': HighPriorityUnaryNegation
+        }
 
     def get_operator(self, symbol):
         # method will  get the class corresponding to the symbol (if its correct) and return its instance
