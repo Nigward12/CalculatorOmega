@@ -7,7 +7,7 @@ if __name__ == '__main__':
     #  the program will keep receiving new inputs until the input is "done"
     try:
         expression = input("Enter a valid infix expression for calculation , enter \"done\" to exit: ")
-    except (EOFError, KeyboardInterrupt) as e:
+    except EOFError as e:
         print(f"{e}")
         exit(0)
     while not expression == "done":
@@ -20,6 +20,6 @@ if __name__ == '__main__':
             print(f"{e}")
         try:
             expression = input("Enter a valid infix expression for calculation , enter \"done\" to exit: ")
-        except (EOFError, KeyboardInterrupt) as e:
+        except EOFError as e:
             print(f"{e}")
             exit(0)

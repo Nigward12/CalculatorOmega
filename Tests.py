@@ -124,7 +124,7 @@ invalid_test_cases = [
     ("2 - - 3!", TypeError),
     ("0^-1", ZeroDivisionError),
     ("~2^0.5", ValueError)
-    # to check for EOF and KeyboardInterrupt Errors , run them in main
+    # to check for EOF Error , run in main
 ]
 
 
