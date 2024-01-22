@@ -1,4 +1,3 @@
-
 class Operand(object):
     #  helper class that contains methods to be committed on potential operands for calculations
     @staticmethod
@@ -18,14 +17,10 @@ class Operand(object):
         #  be returned with no changes , if value is a string
         #  the numeric value it represents will be returned (if a value is properly represented in the string)
         try:
-            return int(value)
+            return float(value)
         except ValueError:
-            try:
-                return float(value)
-            except ValueError:
-                raise ValueError(f"The string '{value}' is not a valid number.")
+            raise ValueError(f"The string '{value}' is not a valid number.")
 
     @staticmethod
     def is_white_space(element):
         return element in " \t"
-

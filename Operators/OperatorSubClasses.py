@@ -229,11 +229,11 @@ class FactorialOperator(Operator):
                     or operand1 in Operator.right_operators_str()):
                 raise SyntaxError("! placed out of context")
             return
-        if not Operand.is_number(operand1) or operand1 < 0 or type(operand1) is float:
+        if not Operand.is_number(operand1) or operand1 < 0 or int(operand1) != operand1:
             raise TypeError("Operand for factorial operation must be a natural number")
         result = 1
         #  factorial operation on the number
-        for i in range(2, operand1 + 1):
+        for i in range(2, int(operand1) + 1):
             result *= i
         return result
 
@@ -255,13 +255,16 @@ class SumDigitsOperator(Operator):
             return
         if not Operand.is_number(operand1) or Operand.convert_to_number(operand1) < 0:
             raise TypeError("Operand for SumDigits must be numeric and positive")
-        number_str = str(operand1)
+        operand_str = str(operand1)
         # for very .... very .... long numbers
-        if 'e' in number_str or 'E' in number_str:
-            number_str = '{:.0f}'.format(operand1)
+        if 'e' in operand_str or 'E' in operand_str:
+            operand_str = '{:.0f}'.format(operand1)  # not accurate a lot of the times
+            print(f" *Warning* : operand for digit summing :{operand1} , is represented by a scientific notation \n"
+                  f"result may not be accurate")
         # remove decimal point
-        number_str = number_str.replace('.', '')
-        return sum(int(digit) for digit in number_str if digit.isdigit())
+        operand_str = operand_str.replace('.', '')
+        # sum the digits and return them
+        return sum(int(digit) for digit in operand_str if digit.isdigit())
 
 
 class TildaOperator(Operator):
